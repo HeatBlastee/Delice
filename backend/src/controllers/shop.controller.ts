@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Shop from "../models/shop.model";
 import uploadOnCloudinary from "../utils/cloudinary";
-
+import fs from 'fs'
 /**
  * Extending the Request interface to include properties 
  * added by your auth and multer middlewares.
@@ -11,31 +11,57 @@ interface AuthenticatedRequest extends Request {
     file?: Express.Multer.File;
 }
 
+interface ShopData {
+    name: string;
+    city: string;
+    state: string;
+    address: string;
+    owner?: string;
+    image?: string; // Optional: prevents 'null' errors
+}
+
 export const createEditShop = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     try {
         const { name, city, state, address } = req.body;
-        let imageUrl: string | null = null;
+
+        // Initialize as undefined instead of null to satisfy TS/Mongoose String types
+        let imageUrl: string | undefined = undefined;
 
         // Handle Image Upload
         if (req.file) {
-            const uploadedImageUrl = await uploadOnCloudinary(req.file.path);
-            imageUrl = uploadedImageUrl;
+            imageUrl = await uploadOnCloudinary(req.file.path);
+
+            // Clean up the local 'public' folder after Cloudinary upload
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
         }
 
         let shop = await Shop.findOne({ owner: req.userId });
 
-        const shopData = {
+        // Build the data object using the interface
+        const shopData: ShopData = {
             name,
             city,
             state,
             address,
             owner: req.userId,
-            imageUrl
         };
 
+        // Only attach image if a new one was uploaded
+        if (imageUrl) {
+            shopData.image = imageUrl;
+        }
+
         if (!shop) {
+            // New Shop Creation
+            if (!imageUrl) {
+                return res.status(400).json({ message: "Shop image is required for new shops" });
+            }
             shop = await Shop.create(shopData);
         } else {
+            // Edit existing Shop
+            // Mongoose will ignore the 'image' field if it's not in the shopData object
             shop = await Shop.findByIdAndUpdate(shop._id, shopData, { new: true });
         }
 
@@ -47,6 +73,9 @@ export const createEditShop = async (req: AuthenticatedRequest, res: Response): 
         return res.status(201).json(shop);
 
     } catch (error) {
+        // Cleanup file if error occurs during process
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         return res.status(500).json({ message: `Create/Edit shop error: ${errorMessage}` });
     }

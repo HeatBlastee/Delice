@@ -4,16 +4,11 @@ import { HiOutlineTrash } from "react-icons/hi2"; // Switched to a slightly bold
 import { useDispatch } from 'react-redux';
 import { removeCartItem, updateQuantity } from '../redux/userSlice';
 import toast from 'react-hot-toast';
+import type { CartItem } from "../pages/schema";
 
 // 1. Define the Props Interface based on your CartItem interface
 interface CartItemCardProps {
-    data: {
-        id: string | number;
-        name: string;
-        price: number;
-        quantity: number;
-        image: string;
-    };
+    data: CartItem
 }
 
 
@@ -21,19 +16,19 @@ function CartItemCard({ data }: CartItemCardProps) {
     const dispatch = useDispatch();
 
     const handleIncrease = () => {
-        dispatch(updateQuantity({ id: data.id, quantity: data.quantity + 1 }));
+        dispatch(updateQuantity({ _id: data._id, quantity: data.quantity + 1 }));
     };
 
     const handleDecrease = () => {
         if (data.quantity > 1) {
-            dispatch(updateQuantity({ id: data.id, quantity: data.quantity - 1 }));
+            dispatch(updateQuantity({ _id: data._id, quantity: data.quantity - 1 }));
         } else {
             handleRemove();
         }
     };
 
     const handleRemove = () => {
-        dispatch(removeCartItem(data.id));
+        dispatch(removeCartItem(data._id));
         toast.error(`${data.name} removed from cart`);
     };
 

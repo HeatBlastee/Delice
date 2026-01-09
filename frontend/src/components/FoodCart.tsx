@@ -14,7 +14,7 @@ function FoodCard({ data }: FoodCardProps) {
 
     // 1. Get the quantity directly from Redux. No local useState needed!
     const cartItem = useSelector((state: RootState) =>
-        state.user.cartItems.find(i => i.id === data._id)
+        state.user.cartItems.find(i => i._id === data._id)
     );
 
     const quantity = cartItem?.quantity || 0;
@@ -30,10 +30,7 @@ function FoodCard({ data }: FoodCardProps) {
     // 2. Actions now dispatch directly to Redux
     const handleAddToCart = () => {
         dispatch(addToCart({
-            id: data._id,
-            name: data.name,
-            price: data.price,
-            image: data.image,
+            ...data,
             quantity: 1,
         }));
         toast.success(`${data.name} added!`);
@@ -44,7 +41,7 @@ function FoodCard({ data }: FoodCardProps) {
             dispatch(removeCartItem(data._id));
             toast.error("Removed from cart");
         } else {
-            dispatch(updateQuantity({ id: data._id, quantity: newQty }));
+            dispatch(updateQuantity({ _id: data._id, quantity: newQty }));
         }
     };
 
@@ -99,3 +96,4 @@ function FoodCard({ data }: FoodCardProps) {
 }
 
 export default FoodCard;
+

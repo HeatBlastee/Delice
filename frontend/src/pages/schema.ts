@@ -51,3 +51,7 @@ export interface DeliveryAssignment {
     status: "brodcasted" | "assigned" | "completed";
     acceptedAt?: Date;
 }
+
+export interface CartItem extends Item {
+    quantity: number;
+}

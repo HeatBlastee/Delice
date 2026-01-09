@@ -7,12 +7,31 @@ import type { RootState } from './redux/store';
 import useGetCurrentUser from './hooks/useGetCurrentUser';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Home from './pages/dashboard/Home';
+import useGetCity from './hooks/useGetCity';
+import useGetItemsByCity from './hooks/useGetItemsByCity';
+import useGetMyOrders from './hooks/useGetMyOrders';
+import useGetMyshop from './hooks/useGetMyShop';
+import useGetShopByCity from './hooks/useGetShopByCity';
+import useUpdateLocation from './hooks/useUpdateLocation';
+import CreateEditShop from './pages/shop/CreateEditShop';
+import CartPage from './pages/checkout/CartPage';
+import AddItem from './pages/item/AddItem';
+import EditItem from './pages/item/EditItem';
+import CheckOut from './pages/checkout/CheckOut';
+import Shop from './pages/shop/Shop';
 
 export const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 function App() {
   const { userData } = useSelector((state: RootState) => state.user);
 
   useGetCurrentUser()
+  useGetCity();
+  useGetItemsByCity();
+  useGetMyOrders();
+  useGetMyshop();
+  useGetShopByCity();
+  useUpdateLocation();
+  
   return (
     <>
       <Routes>
@@ -20,6 +39,16 @@ function App() {
         <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/"} />} />
         <Route path='/forgot-password' element={!userData ? <ForgotPassword /> : <Navigate to={"/"} />} />
         <Route path='/' element={userData ? <Home /> : <Navigate to={"/signin"} />} />
+
+        <Route path='/create-edit-shop' element={userData ? <CreateEditShop /> : <Navigate to={"/signin"} />} />
+        <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to={"/signin"} />} />
+        <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to={"/signin"} />} />
+        <Route path='/cart' element={userData ? <CartPage /> : <Navigate to={"/signin"} />} />
+        <Route path='/checkout' element={userData ? <CheckOut /> : <Navigate to={"/signin"} />} />
+        {/* <Route path='/order-placed' element={userData ? <OrderPlaced /> : <Navigate to={"/signin"} />} />
+        <Route path='/my-orders' element={userData ? <MyOrders /> : <Navigate to={"/signin"} />} />
+        <Route path='/track-order/:orderId' element={userData ? <TrackOrderPage /> : <Navigate to={"/signin"} />} /> */}
+        <Route path='/shop/:shopId' element={userData ? <Shop /> : <Navigate to={"/signin"} />} />
       </Routes>
       <Toaster position="bottom-right"
         reverseOrder={false} />
