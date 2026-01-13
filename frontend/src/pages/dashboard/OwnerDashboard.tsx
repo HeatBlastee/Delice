@@ -1,14 +1,49 @@
 
 import { useSelector } from 'react-redux'
+import { useEffect } from 'react';
 import { FaUtensils } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { FaPen } from "react-icons/fa";
+import toast from 'react-hot-toast';
 import type { RootState } from '../../redux/store';
 import Nav from '../../components/Nav';
 import OwnerItemCard from '../../components/OwnerItemCard';
 function OwnerDashboard() {
   const { myShopData } = useSelector((state:RootState) => state.owner)
+  const { userData, socket } = useSelector((state: RootState) => state.user)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!socket || !userData || userData.role !== 'owner') return;
+
+    const handleNewOrder = (data: unknown) => {
+      console.log('New order received in dashboard:', data);
+      const orderData = data as { 
+        _id?: string;
+        user?: { fullName?: string };
+        shopOrders?: { owner?: { _id?: string }; subtotal?: number; deliveryFee?: number }; 
+      };
+      
+      // Check if the order is for this owner
+      if (orderData.shopOrders) {
+        const shopOrder = orderData.shopOrders as { owner?: { _id?: string }; subtotal?: number; deliveryFee?: number };
+        if (shopOrder.owner?._id === userData._id) {
+          // Show toast notification
+          const totalAmount = (shopOrder.subtotal || 0) + (shopOrder.deliveryFee || 50);
+          toast.success(
+            `🎉 New Order from ${orderData.user?.fullName || 'Customer'}! Total: ₹${totalAmount}`,
+            { duration: 5000 }
+          );
+        }
+      }
+    }
+
+    socket.on('newOrder', handleNewOrder)
+
+    return () => {
+      socket.off('newOrder', handleNewOrder)
+    }
+  }, [socket, userData])
 
 
   return (

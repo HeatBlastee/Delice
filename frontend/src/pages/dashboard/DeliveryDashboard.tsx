@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import toast from 'react-hot-toast'
 import { SERVER_URI } from '../../App'
 import DeliveryBoyTracking from '../../components/DeliveryBoyTracking'
 import Nav from '../../components/Nav'
@@ -126,12 +127,32 @@ function DeliveryBoy() {
 
   useEffect(() => {
     if (!socket) return
+    
     socket.on('newAssignment', (...args: unknown[]) => {
       const data = args[0] as Assignment
       setAvailableAssignments(prev => ([...prev, data]))
+      
+      // Show toast notification for new delivery assignment
+      toast.success(
+        `🚴 New Delivery Available from ${data.shopName}! Earn ₹50`,
+        { duration: 5000 }
+      )
     })
+
+    socket.on('assignmentTaken', (...args: unknown[]) => {
+      const data = args[0] as { assignmentId: string }
+      // Remove the assignment from the list since it was accepted by another delivery boy
+      setAvailableAssignments(prev => prev.filter(a => a.assignmentId !== data.assignmentId))
+      
+      toast('An order was just taken by another delivery boy', { 
+        duration: 3000,
+        icon: 'ℹ️'
+      })
+    })
+    
     return () => {
       socket.off('newAssignment')
+      socket.off('assignmentTaken')
     }
   }, [socket])
 
@@ -242,7 +263,10 @@ function DeliveryBoy() {
           <div className='border rounded-lg p-4 mb-3'>
             <p className='font-semibold text-sm'>{currentOrder?.shopOrder.shop.name}</p>
             <p className='text-sm text-gray-500'>{currentOrder.deliveryAddress.text}</p>
-            <p className='text-xs text-gray-400'>{currentOrder.shopOrder.shopOrderItems.length} items | {currentOrder.shopOrder.subtotal}</p>
+            <p className='text-xs text-gray-400'>{currentOrder.shopOrder.shopOrderItems.length} items | ₹{currentOrder.shopOrder.subtotal}</p>
+            <div className='mt-2 bg-green-50 border border-green-200 rounded-lg p-2'>
+              <p className='text-sm font-semibold text-green-700'>💰 Your Delivery Fee: ₹50</p>
+            </div>
           </div>
 
           <DeliveryBoyTracking data={{

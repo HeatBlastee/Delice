@@ -13,26 +13,42 @@ import { useNavigate } from 'react-router-dom';
 
 import { SERVER_URI } from '../../App';
 import { setAddress, setLocation } from '../../redux/mapSlice';
-import { addMyOrder } from '../../redux/userSlice';
+import { addMyOrder, clearCart, type CartItem } from '../../redux/userSlice';
 import type { RootState } from '../../redux/store';
 
 // --- Global Types for Razorpay ---
-declare global {
-    interface Window {
-        Razorpay: any;
-    }
+interface RazorpayResponse {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
 }
 
-// --- Interfaces ---
-interface CartItem {
-    id: string | number;
-    name: string;
-    price: number;
-    quantity: number;
+declare global {
+    interface Window {
+        Razorpay: new (options: {
+            key: string;
+            amount: number;
+            currency: string;
+            name: string;
+            description: string;
+            order_id: string;
+            handler: (response: RazorpayResponse) => void;
+            theme: { color: string };
+        }) => { open: () => void };
+    }
 }
 
 interface RecenterMapProps {
     location: { lat: number; lon: number };
+}
+
+interface PaymentCardProps {
+    active: boolean;
+    onClick: () => void;
+    title: string;
+    subtitle: string;
+    icon: React.ReactNode;
+    iconBg: string;
 }
 
 function RecenterMap({ location }: RecenterMapProps) {
@@ -88,34 +104,37 @@ const CheckOut: React.FC = () => {
     };
 
     const getCurrentLocation = () => {
+        if (!userData) return;
         const latitude = userData.location.coordinates[1];
         const longitude = userData.location.coordinates[0];
         dispatch(setLocation({ lat: latitude, lon: longitude }));
         getAddressByLatLng(latitude, longitude);
     };
 
-    const onDragEnd = (e: any) => {
-        const { lat, lng } = e.target.getLatLng();
+    const onDragEnd = (e: L.DragEndEvent) => {
+        const marker = e.target as L.Marker;
+        const { lat, lng } = marker.getLatLng();
         dispatch(setLocation({ lat, lon: lng }));
         getAddressByLatLng(lat, lng);
     };
 
     // --- Payment & Order ---
-    const openRazorpayWindow = (orderId: string, razorOrder: any) => {
+    const openRazorpayWindow = (orderId: string, razorOrder: { id: string; amount: number }) => {
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: razorOrder.amount,
             currency: 'INR',
-            name: "Vingo Food",
+            name: "Delice",
             description: "Deliciousness delivered",
             order_id: razorOrder.id,
-            handler: async function (response: any) {
+            handler: async function (response: RazorpayResponse) {
                 try {
                     const result = await axios.post(`${SERVER_URI}/api/order/verify-payment`, {
                         razorpay_payment_id: response.razorpay_payment_id,
                         orderId
                     }, { withCredentials: true });
                     dispatch(addMyOrder(result.data));
+                    dispatch(clearCart());
                     navigate("/order-placed");
                 } catch (error) {
                     console.error("Payment Verification Error:", error);
@@ -143,6 +162,7 @@ const CheckOut: React.FC = () => {
 
             if (paymentMethod === "cod") {
                 dispatch(addMyOrder(result.data));
+                dispatch(clearCart());
                 navigate("/order-placed");
             } else {
                 openRazorpayWindow(result.data.orderId, result.data.razorOrder);
@@ -155,8 +175,25 @@ const CheckOut: React.FC = () => {
     };
 
     useEffect(() => {
-        setAddressInput(address);
+        setAddressInput(address || "");
     }, [address]);
+
+    // Early return if location not available
+    if (location.lat === null || location.lon === null) {
+        return (
+            <div className='min-h-screen bg-[#fffcfb] p-4 md:p-8 flex items-center justify-center'>
+                <div className='text-center'>
+                    <p className='text-gray-600 mb-4'>Loading location...</p>
+                    <button
+                        onClick={getCurrentLocation}
+                        className='bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors'
+                    >
+                        Get Current Location
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className='min-h-screen bg-[#fffcfb] p-4 md:p-8'>
@@ -205,7 +242,7 @@ const CheckOut: React.FC = () => {
                                 zoom={16}
                             >
                                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                <RecenterMap location={location} />
+                                <RecenterMap location={{ lat: location.lat, lon: location.lon }} />
                                 <Marker
                                     position={[location.lat, location.lon]}
                                     draggable
@@ -293,7 +330,7 @@ const CheckOut: React.FC = () => {
 };
 
 // Sub-component for Payment Methods
-const PaymentCard = ({ active, onClick, title, subtitle, icon, iconBg }: any) => (
+const PaymentCard: React.FC<PaymentCardProps> = ({ active, onClick, title, subtitle, icon, iconBg }) => (
     <div
         onClick={onClick}
         className={`cursor-pointer flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${active ? "border-[#ff4d2d] bg-orange-50 shadow-md" : "border-gray-100 hover:border-gray-200 bg-white"

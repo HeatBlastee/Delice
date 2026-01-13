@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -12,9 +14,9 @@ import { auth } from '../../utils/firebase';
 import type { User } from '../schema';
 import toast from 'react-hot-toast';
 
-// 1. Define Types
+// Define Types
 interface SignInResponse {
-    user: User; 
+    user: User;
     token?: string;
     message?: string;
 }
@@ -26,7 +28,6 @@ const COLORS = {
     border: "#ddd"
 };
 
-
 function SignIn() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -35,7 +36,15 @@ function SignIn() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleSignIn = async () => {
+    // Changed to handle Form Event
+    const handleSignIn = async (e?: React.FormEvent) => {
+        // Prevent page reload if called from form onSubmit
+        if (e) e.preventDefault();
+
+        if (!email || !password) {
+            return toast.error("Please fill in all fields");
+        }
+
         const loadingToast = toast.loading("Signing in...");
         setLoading(true);
         try {
@@ -69,7 +78,7 @@ function SignIn() {
             toast.success("Successfully signed in with Google!");
             navigate('/');
         } catch (error) {
-            console.log(error)
+            console.error(error);
             toast.error("Google authentication failed");
         }
     };
@@ -81,14 +90,15 @@ function SignIn() {
                 <h1 className='text-3xl font-bold mb-2' style={{ color: COLORS.primary }}>Delice</h1>
                 <p className='text-gray-600 mb-6'>Sign in to your account to get started.</p>
 
-
-                <div className='space-y-4'>
+                {/* Wrap inputs in a form */}
+                <form onSubmit={handleSignIn} className='space-y-4'>
                     {/* Email Input */}
                     <div>
                         <label className='block text-gray-700 font-medium mb-1'>Email</label>
                         <input
                             type="email"
-                            className='w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#ff4d2d]/20 focus:outline-none'
+                            required
+                            className='w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#ff4d2d]/20 focus:outline-none transition-all'
                             style={{ borderColor: COLORS.border }}
                             placeholder='Enter your email'
                             value={email}
@@ -102,39 +112,41 @@ function SignIn() {
                         <div className='relative'>
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className='w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#ff4d2d]/20 focus:outline-none pr-10'
+                                required
+                                className='w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#ff4d2d]/20 focus:outline-none pr-10 transition-all'
                                 style={{ borderColor: COLORS.border }}
                                 placeholder='Enter password'
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                             <button
-                                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700'
+                                type="button" // Important: type="button" prevents this from submitting the form
+                                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
                                 onClick={() => setShowPassword(!showPassword)}
                             >
-                                {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                                {showPassword ? <FaRegEyeSlash size={18} /> : <FaRegEye size={18} />}
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <div className='text-right mt-2 mb-6'>
-                    <span
-                        className='cursor-pointer text-[#ff4d2d] font-medium text-sm'
-                        onClick={() => navigate("/forgot-password")}
+                    <div className='text-right mt-2'>
+                        <span
+                            className='cursor-pointer text-[#ff4d2d] font-medium text-sm hover:underline'
+                            onClick={() => navigate("/forgot-password")}
+                        >
+                            Forgot Password?
+                        </span>
+                    </div>
+
+                    <button
+                        type="submit" // Triggers onSubmit of the form
+                        className='w-full font-semibold py-2.5 rounded-lg transition-all text-white active:scale-[0.98] disabled:opacity-70'
+                        style={{ backgroundColor: COLORS.primary }}
+                        disabled={loading}
                     >
-                        Forgot Password?
-                    </span>
-                </div>
-
-                <button
-                    className='w-full font-semibold py-2.5 rounded-lg transition-colors text-white disabled:opacity-70'
-                    style={{ backgroundColor: COLORS.primary }}
-                    onClick={handleSignIn}
-                    disabled={loading}
-                >
-                    {loading ? <ClipLoader size={20} color='white' /> : "Sign In"}
-                </button>
+                        {loading ? <ClipLoader size={20} color='white' /> : "Sign In"}
+                    </button>
+                </form>
 
                 <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-300"></span></div>
@@ -142,7 +154,8 @@ function SignIn() {
                 </div>
 
                 <button
-                    className='w-full flex items-center justify-center gap-2 border rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors'
+                    type="button"
+                    className='w-full flex items-center justify-center gap-2 border rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors active:scale-[0.98]'
                     onClick={handleGoogleAuth}
                 >
                     <FcGoogle size={20} />
@@ -151,7 +164,7 @@ function SignIn() {
 
                 <p className='text-center mt-8 text-gray-600'>
                     Don't have an account?
-                    <span className='text-[#ff4d2d] ml-1 font-medium cursor-pointer' onClick={() => navigate("/signup")}>Sign Up</span>
+                    <span className='text-[#ff4d2d] ml-1 font-medium cursor-pointer hover:underline' onClick={() => navigate("/signup")}>Sign Up</span>
                 </p>
             </div>
         </div>
