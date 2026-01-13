@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { FaCircleCheck } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 function OrderPlaced() {
