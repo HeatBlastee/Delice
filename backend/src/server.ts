@@ -20,7 +20,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://delice-jmvm.onrender.com",
+        origin: process.env.FRONTEND_URL,
         credentials: true,
         methods: ['POST', 'GET']
     }
@@ -29,7 +29,7 @@ const io = new Server(server, {
 app.set("io", io)
 // Middleware
 app.use(cors({
-    origin: "https://delice-jmvm.onrender.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }))
 app.use(express.json());

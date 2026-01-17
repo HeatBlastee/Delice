@@ -2,7 +2,7 @@ import express from "express"
 
 import { upload } from "../middlewares/multer"
 import { isAuth } from "../middlewares/isAuth"
-import { addItem, deleteItem, editItem, getItemByCity, getItemById, getItemsByShop, rating, searchItems } from "../controllers/item.controller"
+import { addItem, deleteItem, editItem, getItemByCity, getItemById, getItemsByShop, rating, searchItems, trackSearch, trackItemClick, getRecommendations } from "../controllers/item.controller"
 
 
 
@@ -16,5 +16,10 @@ itemRouter.get("/get-by-city/:city", isAuth, getItemByCity)
 itemRouter.get("/get-by-shop/:shopId", isAuth, getItemsByShop)
 itemRouter.get("/search-items", isAuth, searchItems)
 itemRouter.post("/rating", isAuth, rating)
+
+// Recommendation and tracking routes
+itemRouter.post("/track-search", isAuth, trackSearch)
+itemRouter.post("/track-click", isAuth, trackItemClick)
+itemRouter.get("/recommendations", isAuth, getRecommendations)
 
 export default itemRouter

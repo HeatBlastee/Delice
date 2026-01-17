@@ -1,7 +1,9 @@
 import { FaLeaf, FaDrumstickBite, FaStar, FaRegStar, FaMinus, FaPlus } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
+import { SERVER_URI } from '../App';
 import { addToCart, updateQuantity, removeCartItem } from '../redux/userSlice';
 import type { RootState } from '../redux/store';
 import type { Item } from '../pages/schema';
@@ -19,6 +21,17 @@ function FoodCard({ data }: FoodCardProps) {
 
     const quantity = cartItem?.quantity || 0;
 
+    // Track item click
+    const trackClick = async () => {
+        try {
+            await axios.post(`${SERVER_URI}/api/item/track-click`, {
+                itemId: data._id
+            }, { withCredentials: true });
+        } catch (error) {
+            console.error('Error tracking click:', error);
+        }
+    };
+
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, i) => (
             i < rating
@@ -29,6 +42,7 @@ function FoodCard({ data }: FoodCardProps) {
 
     // 2. Actions now dispatch directly to Redux
     const handleAddToCart = () => {
+        trackClick(); // Track click when adding to cart
         dispatch(addToCart({
             ...data,
             quantity: 1,
@@ -96,4 +110,3 @@ function FoodCard({ data }: FoodCardProps) {
 }
 
 export default FoodCard;
-

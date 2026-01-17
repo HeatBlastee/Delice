@@ -43,6 +43,14 @@ const itemSchema = new mongoose.Schema({
     rating: {
         average: { type: Number, default: 0 },
         count: { type: Number, default: 0 }
+    },
+    clicks: {
+        type: Number,
+        default: 0
+    },
+    views: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true

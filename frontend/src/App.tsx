@@ -9,7 +9,6 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import Home from './pages/dashboard/Home';
 import useGetCity from './hooks/useGetCity';
 import useGetItemsByCity from './hooks/useGetItemsByCity';
-import useGetMyOrders from './hooks/useGetMyOrders';
 import useGetMyshop from './hooks/useGetMyShop';
 import useGetShopByCity from './hooks/useGetShopByCity';
 import useUpdateLocation from './hooks/useUpdateLocation';
@@ -30,13 +29,18 @@ export const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 function App() {
   const { userData, loading } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
+  
+  // Always fetch current user
   useGetCurrentUser()
-  useGetCity();
-  useGetItemsByCity();
-  useGetMyOrders();
-  useGetMyshop();
-  useGetShopByCity();
-  useUpdateLocation();
+  
+  // Role-based hook loading - hooks internally check role and conditionally execute
+  useGetCity(); // Only runs for 'user' role
+  useGetItemsByCity(); // Only runs for 'user' role
+  useGetShopByCity(); // Only runs for 'user' role
+  useGetMyshop(); // Only runs for 'owner' role
+  useUpdateLocation(); // Only runs for 'deliveryBoy' role
+  
+  // Fetch orders only when needed (lazy loaded in MyOrders page)
 
   useEffect(() => {
     const socketInstance = io(SERVER_URI, { withCredentials: true })

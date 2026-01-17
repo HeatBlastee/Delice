@@ -10,6 +10,9 @@ function useGetCity() {
     const { userData } = useSelector((state: RootState) => state.user);
     const apiKey = import.meta.env.VITE_GEOAPIKEY
     useEffect(() => {
+        // Only run for 'user' role
+        if (userData?.role !== 'user') return;
+        
         navigator.geolocation.getCurrentPosition(async (position) => {
             console.log(position)
             const latitude = position.coords.latitude

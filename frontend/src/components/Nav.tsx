@@ -47,6 +47,14 @@ function Nav() {
                 { withCredentials: true }
             );
             dispatch(setSearchItems(data));
+            
+            // Track search query
+            if (query && currentCity) {
+                axios.post(`${SERVER_URI}/api/item/track-search`, {
+                    query,
+                    city: currentCity
+                }, { withCredentials: true }).catch(err => console.error('Track search error:', err));
+            }
         } catch (error) {
             console.error("Search error:", error);
         }

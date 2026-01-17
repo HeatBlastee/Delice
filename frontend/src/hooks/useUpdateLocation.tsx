@@ -8,6 +8,9 @@ function useUpdateLocation() {
     const { userData } = useSelector((state: RootState) => state.user)
 
     useEffect(() => {
+        // Only run for 'deliveryBoy' role
+        if (userData?.role !== 'deliveryBoy') return;
+        
         const updateLocation = async (lat: number, lon: number) => {
             const result = await axios.post(`${SERVER_URI}/api/user/update-location`, { lat, lon }, { withCredentials: true })
             console.log(result.data)

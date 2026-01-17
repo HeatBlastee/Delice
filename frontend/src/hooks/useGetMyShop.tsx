@@ -9,6 +9,9 @@ function useGetMyshop() {
     const dispatch = useDispatch()
     const { userData } = useSelector((state: RootState) => state.user)
     useEffect(() => {
+        // Only run for 'owner' role
+        if (userData?.role !== 'owner') return;
+        
         const fetchShop = async () => {
             try {
                 const result = await axios.get(`${SERVER_URI}/api/shop/get-my`, { withCredentials: true })

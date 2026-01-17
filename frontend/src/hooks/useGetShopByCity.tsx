@@ -7,8 +7,11 @@ import type { RootState } from '../redux/store'
 
 function useGetShopByCity() {
     const dispatch = useDispatch()
-    const { currentCity } = useSelector((state: RootState) => state.user)
+    const { currentCity, userData } = useSelector((state: RootState) => state.user)
     useEffect(() => {
+        // Only run for 'user' role
+        if (userData?.role !== 'user') return;
+        
         const fetchShops = async () => {
             try {
                 const result = await axios.get(`${SERVER_URI}/api/shop/get-by-city/${currentCity}`, { withCredentials: true })

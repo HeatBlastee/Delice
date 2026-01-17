@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Nav from '../../components/Nav'
 import { categories } from '../../utils/categories'
 import CategoryCard from '../../components/CategoryCard'
+import RecommendationSection from '../../components/RecommendationSection'
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from 'react-redux';
 import FoodCard from '../../components/FoodCart';
@@ -136,32 +137,24 @@ function UserDashboard() {
         </div>
       </div>
 
+      {/* Personalized Recommendations Section */}
       <div className='w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]'>
-        <h1 className='text-gray-800 text-2xl sm:text-3xl'>
-          Suggested Food Items
-        </h1>
+        <RecommendationSection city={currentCity || ''} />
+      </div>
 
-        {updatedItemsList && updatedItemsList.length > 0 ? (
+      {/* Filtered Suggested Food Items */}
+      {updatedItemsList && updatedItemsList.length > 0 && updatedItemsList !== itemsInMyCity && (
+        <div className='w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]'>
+          <h1 className='text-gray-800 text-2xl sm:text-3xl'>
+            Filtered Items
+          </h1>
           <div className='w-full h-auto flex flex-wrap gap-[20px] justify-center'>
             {updatedItemsList.map((item: Item, index: number) => (
               <FoodCard key={index} data={item} />
             ))}
           </div>
-        ) : (
-          <div className='w-full flex flex-col items-center justify-center py-20'>
-            <div className='bg-white rounded-2xl shadow-lg p-8 max-w-md text-center border border-orange-100'>
-              <FaCircleChevronRight className='text-[#ff4d2d] w-16 h-16 mx-auto mb-4' />
-              <h2 className='text-2xl font-bold text-gray-800 mb-3'>No Food Available</h2>
-              <p className='text-gray-600 mb-2'>
-                Sorry, there are no food items available in <span className='font-semibold text-[#ff4d2d]'>{currentCity}</span> right now.
-              </p>
-              <p className='text-sm text-gray-500'>Please check back later or try a different city.</p>
-            </div>
-          </div>
-        )}
-
-
-      </div>
+        </div>
+      )}
 
 
     </div>

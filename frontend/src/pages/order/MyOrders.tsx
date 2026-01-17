@@ -1,4 +1,4 @@
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import type { RootState } from '../../redux/store';
 import { updateRealtimeOrderStatus } from '../../redux/userSlice';
 import UserOrderCard from '../../components/UserOrderCard';
 import OwnerOrderCard from '../../components/OwnerOrderCard';
+import useGetMyOrders from '../../hooks/useGetMyOrders';
 import type { IOrderData, IOwnerOrder } from '../schema';
 
 // Socket Payload Types
@@ -22,29 +23,32 @@ function MyOrders() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     
+    // Lazy load orders - only fetch when this page is visited
+    useGetMyOrders()
+    
     useEffect(() => {
         if (!socket || !userData) return;
 
         const handleNewOrder = (data: unknown) => {
             console.log('New order received:', data);
-            const orderData = data as { 
+            const orderData = data as {
                 _id?: string;
                 user?: { fullName?: string };
-                shopOrders?: { owner?: { _id?: string }; subtotal?: number }; 
+                shopOrders?: { owner?: { _id?: string }; subtotal?: number };
             };
-            
+
             // For owners: Check if the order is for this owner
             if (userData.role === 'owner' && orderData.shopOrders) {
                 const shopOrder = orderData.shopOrders as { owner?: { _id?: string }; subtotal?: number };
                 if (shopOrder.owner?._id === userData._id) {
                     console.log('New order for this owner, reloading orders...');
-                    
+
                     // Show toast notification
                     toast.success(
                         `🎉 New Order from ${orderData.user?.fullName || 'Customer'}! Amount: ₹${shopOrder.subtotal || 0}`,
                         { duration: 5000 }
                     );
-                    
+
                     // Refetch orders to get fresh data
                     setTimeout(() => window.location.reload(), 2000);
                 }
@@ -55,10 +59,10 @@ function MyOrders() {
             const payload = args[0] as UpdateStatusPayload;
             console.log('Update status received:', payload);
             if (payload.userId === userData._id) {
-                dispatch(updateRealtimeOrderStatus({ 
-                    orderId: payload.orderId, 
-                    shopId: payload.shopId, 
-                    status: payload.status 
+                dispatch(updateRealtimeOrderStatus({
+                    orderId: payload.orderId,
+                    shopId: payload.shopId,
+                    status: payload.status
                 }))
             }
         }
