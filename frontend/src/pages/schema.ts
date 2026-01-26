@@ -28,6 +28,8 @@ export interface Item {
         average: number;
         count: number;
     };
+    clicks?: number;
+    views?: number;
 }
 
 export interface Shop {

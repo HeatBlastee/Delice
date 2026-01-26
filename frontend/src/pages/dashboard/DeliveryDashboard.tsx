@@ -237,24 +237,59 @@ function DeliveryBoy() {
 
 
         {!currentOrder && <div className='bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100'>
-          <h1 className='text-lg font-bold mb-4 flex items-center gap-2'>Available Orders</h1>
+          <h1 className='text-lg font-bold mb-4 flex items-center gap-2'>🛵 Available Orders</h1>
 
           <div className='space-y-4'>
             {availableAssignments?.length > 0
               ?
               (
                 availableAssignments.map((a, index) => (
-                  <div className='border rounded-lg p-4 flex justify-between items-center' key={index}>
-                    <div>
-                      <p className='text-sm font-semibold'>{a?.shopName}</p>
-                      <p className='text-sm text-gray-500'><span className='font-semibold'>Delivery Address:</span> {a?.deliveryAddress.text}</p>
-                      <p className='text-xs text-gray-400'>{a.items.length} items | {a.subtotal}</p>
+                  <div className='border-2 border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-lg transition-all' key={index}>
+                    <div className='flex justify-between items-start mb-3'>
+                      <div className='flex-1'>
+                        <div className='flex items-center gap-2 mb-2'>
+                          <span className='bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold'>
+                            🔥 HOT ORDER
+                          </span>
+                        </div>
+                        <p className='text-base font-bold text-gray-800'>{a?.shopName}</p>
+                        <p className='text-sm text-gray-600 mt-1'>
+                          📍 {a?.deliveryAddress.text}
+                        </p>
+                      </div>
                     </div>
-                    <button className='bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600' onClick={() => acceptOrder(a.assignmentId)}>Accept</button>
+                    
+                    <div className='grid grid-cols-2 gap-3 mb-3 bg-gray-50 p-3 rounded-lg'>
+                      <div>
+                        <p className='text-xs text-gray-500'>Items</p>
+                        <p className='text-sm font-semibold text-gray-800'>{a.items.length} items</p>
+                      </div>
+                      <div>
+                        <p className='text-xs text-gray-500'>Order Value</p>
+                        <p className='text-sm font-semibold text-gray-800'>₹{a.subtotal}</p>
+                      </div>
+                    </div>
 
+                    <div className='bg-green-50 border border-green-200 rounded-lg p-3 mb-3'>
+                      <p className='text-sm font-bold text-green-700 flex items-center gap-2'>
+                        💰 Your Earning: <span className='text-lg'>₹50</span>
+                      </p>
+                    </div>
+
+                    <button 
+                      className='w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all shadow-md' 
+                      onClick={() => acceptOrder(a.assignmentId)}
+                    >
+                      Accept Order →
+                    </button>
                   </div>
                 ))
-              ) : <p className='text-gray-400 text-sm'>No Available Orders</p>}
+              ) : (
+                <div className='text-center py-8'>
+                  <p className='text-gray-400 text-lg mb-2'>📭 No Available Orders</p>
+                  <p className='text-gray-400 text-sm'>New orders will appear here automatically</p>
+                </div>
+              )}
           </div>
         </div>}
 
