@@ -4,7 +4,7 @@ import { categories } from '../../utils/categories'
 import CategoryCard from '../../components/CategoryCard'
 import RecommendationSection from '../../components/RecommendationSection'
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
-import { FaLeaf, FaDrumstickBite, FaStar, FaShoppingBag, FaStore } from "react-icons/fa";
+import { FaLeaf, FaShoppingBag, FaStore } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import FoodCard from '../../components/FoodCart';
 import { useNavigate } from 'react-router-dom';
@@ -233,8 +233,7 @@ function UserDashboard() {
                         ? 'bg-green-600 text-white shadow-md'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
-                  >
-                    <FaLeaf /> Veg
+                  > Veg
                   </button>
                   <button
                     onClick={() => setFilterBy('nonveg')}
@@ -244,7 +243,7 @@ function UserDashboard() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    <FaDrumstickBite /> Non-Veg
+                    Non-Veg
                   </button>
                 </div>
 

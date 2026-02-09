@@ -59,6 +59,8 @@ A comprehensive full-stack food delivery application built with modern web techn
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Express.js
 - **Database**: MongoDB with Mongoose ODM
+- **Cache**: Redis for caching and session management
+- **Message Queue**: RabbitMQ for asynchronous task processing
 - **Real-Time**: Socket.io for WebSocket communication
 - **Authentication**: JWT (JSON Web Tokens) + bcrypt
 - **Payment Gateway**: Razorpay Integration
@@ -92,6 +94,8 @@ A comprehensive full-stack food delivery application built with modern web techn
 Before you begin, ensure you have the following installed:
 - **Node.js** (v18 or higher)
 - **MongoDB** (v6 or higher) - Running locally or MongoDB Atlas
+- **Redis** (v6 or higher) - Running locally or Redis Cloud
+- **RabbitMQ** (v3.8 or higher) - Running locally or CloudAMQP
 - **npm** or **pnpm** or **yarn**
 - **Git**
 
@@ -142,6 +146,16 @@ RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_email_app_password
 
+# Redis Configuration
+REDIS_URL=redis://localhost:6379
+# For Redis Cloud or other hosted Redis:
+# REDIS_URL=redis://username:password@your-redis-host:port
+
+# RabbitMQ Configuration
+RABBITMQ_URL=amqp://localhost:5672
+# For CloudAMQP or other hosted RabbitMQ:
+# RABBITMQ_URL=amqps://username:password@your-rabbitmq-host/vhost
+
 # CORS Origin
 FRONTEND_URL=http://localhost:5173
 ```
@@ -183,12 +197,21 @@ npm run dev
 # Server will run on http://localhost:5000
 ```
 
+#### Start Email Worker (Required for OTP emails)
+```bash
+cd backend
+npm run worker:email
+# Worker will process email jobs from RabbitMQ
+```
+
 #### Start Frontend Development Server
 ```bash
 cd frontend
 npm run dev
 # Frontend will run on http://localhost:5173
 ```
+
+**Note:** For full functionality, you need to run all three processes (Backend, Email Worker, and Frontend) simultaneously in separate terminals. See [RABBITMQ_GUIDE.md](RABBITMQ_GUIDE.md) for detailed RabbitMQ setup.
 
 ### Production Mode
 

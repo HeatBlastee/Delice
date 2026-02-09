@@ -5,6 +5,7 @@ import Order from "../models/order.model";
 import SearchHistory from "../models/searchHistory.model";
 import uploadOnCloudinary from "../utils/cloudinary";
 import mongoose from "mongoose";
+import { invalidateCache } from "../middlewares/cache";
 
 // Extend Express Request to include properties added by middleware (Auth/Multer)
 interface AuthenticatedRequest extends Request {
@@ -39,6 +40,10 @@ export const addItem = async (req: AuthenticatedRequest, res: Response) => {
         shop.items.push(item._id as mongoose.Types.ObjectId);
         await shop.save();
 
+        // Invalidate item caches
+        await invalidateCache(`item:*/get-by-city/${shop.city}*`);
+        await invalidateCache(`item:*/get-by-shop/${shop._id}*`);
+
         await shop.populate("owner");
         await shop.populate({
             path: "items",
@@ -66,18 +71,26 @@ export const editItem = async (req: AuthenticatedRequest, res: Response) => {
         const updateData: any = { name, category, foodType, price };
         if (image) updateData.image = image;
 
-        const item = await Item.findByIdAndUpdate(itemId, updateData, { new: true });
+        const item = await Item.findByIdAndUpdate(itemId, updateData, { new: true }).populate('shop');
 
         if (!item) {
             return res.status(400).json({ message: "item not found" });
         }
 
-        const shop = await Shop.findOne({ owner: req.userId }).populate({
+        // Invalidate item caches
+        await invalidateCache(`item:*/get-by-id/${itemId}*`);
+        await invalidateCache(`item:*/get-by-shop/${item.shop}*`);
+        const shop = await Shop.findById(item.shop);
+        if (shop) {
+            await invalidateCache(`item:*/get-by-city/${shop.city}*`);
+        }
+
+        const ownerShop = await Shop.findOne({ owner: req.userId }).populate({
             path: "items",
             options: { sort: { updatedAt: -1 } },
         });
 
-        return res.status(200).json(shop);
+        return res.status(200).json(ownerShop);
     } catch (error) {
         return res.status(500).json({ message: `edit item error ${error}` });
     }
@@ -99,10 +112,19 @@ export const getItemById = async (req: Request, res: Response) => {
 export const deleteItem = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { itemId } = req.params;
-        const item = await Item.findByIdAndDelete(itemId);
+        const item = await Item.findById(itemId).populate('shop');
         if (!item) {
             return res.status(400).json({ message: "item not found" });
         }
+
+        // Store shop info before deletion
+        const itemShop = item.shop as any;
+        await Item.findByIdAndDelete(itemId);
+
+        // Invalidate item caches
+        await invalidateCache(`item:*/get-by-id/${itemId}*`);
+        await invalidateCache(`item:*/get-by-shop/${itemShop._id}*`);
+        await invalidateCache(`item:*/get-by-city/${itemShop.city}*`);
 
         const shop = await Shop.findOne({ owner: req.userId });
         if (shop) {
@@ -221,7 +243,7 @@ export const rating = async (req: Request, res: Response) => {
 export const trackSearch = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { query, city } = req.body;
-        
+
         if (!query || !city) {
             return res.status(400).json({ message: "Query and city are required" });
         }
@@ -243,7 +265,7 @@ export const trackSearch = async (req: AuthenticatedRequest, res: Response) => {
 export const trackItemClick = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { itemId } = req.body;
-        
+
         if (!itemId) {
             return res.status(400).json({ message: "Item ID is required" });
         }
@@ -252,8 +274,8 @@ export const trackItemClick = async (req: AuthenticatedRequest, res: Response) =
         await Item.findByIdAndUpdate(itemId, { $inc: { clicks: 1 } });
 
         // Add to recent search history if exists
-        const recentSearch = await SearchHistory.findOne({ 
-            user: req.userId 
+        const recentSearch = await SearchHistory.findOne({
+            user: req.userId
         }).sort({ createdAt: -1 });
 
         if (recentSearch && !recentSearch.clickedItems.includes(itemId)) {
@@ -271,7 +293,7 @@ export const trackItemClick = async (req: AuthenticatedRequest, res: Response) =
 export const getRecommendations = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { city } = req.query;
-        
+
         if (!city) {
             return res.status(400).json({ message: "City is required" });
         }
@@ -316,9 +338,9 @@ export const getRecommendations = async (req: AuthenticatedRequest, res: Respons
                 shop: { $in: shopIds },
                 category: { $in: topCategories }
             })
-            .populate("shop", "name image")
-            .limit(10)
-            .sort({ rating: -1, clicks: -1 })
+                .populate("shop", "name image")
+                .limit(10)
+                .sort({ rating: -1, clicks: -1 })
             : [];
 
         // 3. Get trending items (most ordered in last 7 days)

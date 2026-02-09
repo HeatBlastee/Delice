@@ -6,7 +6,7 @@ import Shop from "../models/shop.model";
 import User from "../models/user.model";
 import DeliveryAssignment from "../models/deliveryAssignment.model";
 import mongoose from "mongoose";
-import { sendDeliveryOtpMail } from "../utils/mail";
+import { rabbitMQ } from "../utils/rabbitmq";
 
 
 export interface AuthenticatedRequest extends Request {
@@ -115,8 +115,20 @@ export const placeOrder = async (req: AuthenticatedRequest, res: Response) => {
             { path: "shopOrders.shopOrderItems.item", select: "name image price" },
             { path: "shopOrders.shop", select: "name" },
             { path: "shopOrders.owner", select: "name socketId" },
-            { path: "user", select: "name email mobile" }
+            { path: "user", select: "name email mobile fullName" }
         ]);
+
+        // Send order confirmation email asynchronously via RabbitMQ
+        await rabbitMQ.publishEmailJob({
+            type: 'order-confirmation',
+            to: (newOrder.user as any).email,
+            data: {
+                userName: (newOrder.user as any).fullName,
+                orderId: newOrder._id.toString(),
+                totalAmount: totalAmount.toString(),
+                paymentMethod
+            }
+        });
 
         const io = req.app.get("io");
         if (io) {
@@ -506,7 +518,16 @@ export const sendDeliveryOtp = async (req: AuthenticatedRequest, res: Response) 
         shopOrder.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
         await order.save();
-        await sendDeliveryOtpMail((order.user as any), otp);
+
+        // Send delivery OTP email asynchronously via RabbitMQ
+        await rabbitMQ.publishEmailJob({
+            type: 'delivery-otp',
+            to: (order.user as any).email,
+            data: {
+                otp,
+                userName: (order.user as any).fullName
+            }
+        });
 
         return res.status(200).json({
             message: `Otp sent Successfully to ${(order.user as any).fullName}`

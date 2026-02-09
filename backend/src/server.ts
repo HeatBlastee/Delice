@@ -12,6 +12,8 @@ import orderRouter from './routes/order.route';
 import { Server } from "socket.io"
 import http from 'http';
 import { socketHandler } from './utils/socket';
+import redisClient from './utils/redis';
+import { rabbitMQ } from './utils/rabbitmq';
 dotenv.config();
 
 const app = express();
@@ -48,8 +50,28 @@ app.use('/api/order', orderRouter);
 
 
 socketHandler(io)
+
 // Start server
-server.listen(PORT, () => {
-    dbConnect();
-    console.log(`Server running on port ${PORT}`);
+const startServer = async () => {
+    try {
+        await dbConnect();
+        await redisClient.connect();
+        await rabbitMQ.connect(); // Initialize RabbitMQ connection
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('\nShutting down gracefully...');
+    await redisClient.disconnect();
+    await rabbitMQ.close(); // Close RabbitMQ connection
+    process.exit(0);
 });

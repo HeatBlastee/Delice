@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Shop from "../models/shop.model";
 import uploadOnCloudinary from "../utils/cloudinary";
 import fs from 'fs'
+import { invalidateCache } from "../middlewares/cache";
 /**
  * Extending the Request interface to include properties 
  * added by your auth and multer middlewares.
@@ -68,6 +69,9 @@ export const createEditShop = async (req: AuthenticatedRequest, res: Response): 
         if (!shop) {
             return res.status(404).json({ message: "Shop not found or created" });
         }
+
+        // Invalidate cache for this city's shop listings
+        await invalidateCache(`shop:*/get-by-city/${city}*`);
 
         await shop.populate("owner items");
         return res.status(201).json(shop);

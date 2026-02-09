@@ -24,6 +24,7 @@ import TrackOrderPage from './pages/order/TrackOrderPage';
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { setSocket } from './redux/userSlice';
+import LandingPage from './pages/LandingPage';
 
 export const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 function App() {
@@ -75,11 +76,11 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path='/signup' element={!userData ? <SignUp /> : <Navigate to={"/"} />} />
-        <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/"} />} />
-        <Route path='/forgot-password' element={!userData ? <ForgotPassword /> : <Navigate to={"/"} />} />
-        <Route path='/' element={userData ? <Home /> : <Navigate to={"/signin"} />} />
-
+        <Route path='/signup' element={!userData ? <SignUp /> : <Navigate to={"/home"} />} />
+        <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/home"} />} />
+        <Route path='/forgot-password' element={!userData ? <ForgotPassword /> : <Navigate to={"/home"} />} />
+        <Route path='/home' element={userData ? <Home /> : <Navigate to={"/signin"} />} />
+        <Route path='/' element={<LandingPage/>}/>
         <Route path='/create-edit-shop' element={userData ? <CreateEditShop /> : <Navigate to={"/signin"} />} />
         <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to={"/signin"} />} />
         <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to={"/signin"} />} />

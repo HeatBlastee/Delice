@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import { genToken } from "../utils/token";
-import { sendOtpMail } from "../utils/mail";
+import { rabbitMQ } from "../utils/rabbitmq";
 
 export const signUp = async (req: Request, res: Response) => {
     try {
@@ -25,6 +25,13 @@ export const signUp = async (req: Request, res: Response) => {
             role,
             mobile,
             password: hashedPassword
+        });
+
+        // Send welcome email asynchronously via RabbitMQ
+        await rabbitMQ.publishEmailJob({
+            type: 'welcome',
+            to: email,
+            data: { userName: fullName }
         });
 
         const token = await genToken(user._id.toString());
@@ -96,7 +103,14 @@ export const sendOtp = async (req: Request, res: Response) => {
         user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
         user.isOtpVerified = false;
         await user.save();
-        await sendOtpMail(email, otp);
+
+        // Send OTP email asynchronously via RabbitMQ
+        await rabbitMQ.publishEmailJob({
+            type: 'password-reset-otp',
+            to: email,
+            data: { otp }
+        });
+
         return res.status(200).json({ message: "otp sent successfully" });
     } catch (error) {
         return res.status(500).json({ message: `Send otp error: ${error}` });
