@@ -55,7 +55,7 @@ function SignUp() {
 
             dispatch(setUserData(result.data.user));
             toast.success("Account created successfully!", { id: loadingToast });
-            navigate('/');
+            navigate('/home');
         } catch (error) {
             const axiosError = error as AxiosError<{ message: string }>;
             const message = axiosError.response?.data?.message || "Registration failed";
@@ -86,7 +86,7 @@ function SignUp() {
                     loading: 'Syncing Google account...',
                     success: (res) => {
                         dispatch(setUserData(res.data.user));
-                        navigate('/');
+                        navigate('/home');
                         return "Welcome to Delice!";
                     },
                     error: "Google Sign-up failed"

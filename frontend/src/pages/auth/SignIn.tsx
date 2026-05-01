@@ -55,7 +55,7 @@ function SignIn() {
             );
             dispatch(setUserData(data.user));
             toast.success("Welcome back!", { id: loadingToast });
-            navigate('/');
+            navigate('/home');
         } catch (error) {
             const axiosError = error as AxiosError<{ message: string }>;
             const message = axiosError.response?.data?.message || "Sign in failed";
@@ -76,7 +76,7 @@ function SignIn() {
             );
             dispatch(setUserData(data.user));
             toast.success("Successfully signed in with Google!");
-            navigate('/');
+            navigate('/home');
         } catch (error) {
             console.error(error);
             toast.error("Google authentication failed");

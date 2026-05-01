@@ -81,7 +81,7 @@ function App() {
         <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/home"} />} />
         <Route path='/forgot-password' element={!userData ? <ForgotPassword /> : <Navigate to={"/home"} />} />
         <Route path='/home' element={userData ? <Home /> : <Navigate to={"/signin"} />} />
-        <Route path='/' element={<LandingPage/>}/>
+        <Route path='/' element={userData ? <Navigate to="/home" replace /> : <LandingPage/>}/>
         <Route path='/create-edit-shop' element={userData ? <CreateEditShop /> : <Navigate to={"/signin"} />} />
         <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to={"/signin"} />} />
         <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to={"/signin"} />} />
