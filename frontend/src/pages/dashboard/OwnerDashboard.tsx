@@ -8,6 +8,7 @@ import axios from 'axios';
 import type { RootState } from '../../redux/store';
 import Nav from '../../components/Nav';
 import OwnerItemCard from '../../components/OwnerItemCard';
+import OwnerRefunds from '../../components/OwnerRefunds';
 import { SERVER_URI } from '../../App';
 import type { IOwnerOrder } from '../schema';
 
@@ -253,6 +254,9 @@ function OwnerDashboard() {
               </div>
             </div>
           )}
+
+          {/* AI Refund Requests Section */}
+          <OwnerRefunds />
 
           {/* Menu Items Section */}
           {myShopData.items.length === 0 ? (

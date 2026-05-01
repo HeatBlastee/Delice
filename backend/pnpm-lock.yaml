@@ -16,15 +16,9 @@ importers:
 
   .:
     dependencies:
-      '@google/generative-ai':
-        specifier: ^0.24.1
-        version: 0.24.1
       '@langchain/core':
         specifier: ^1.1.42
         version: 1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3)
-      '@langchain/google-genai':
-        specifier: ^2.1.29
-        version: 2.1.29(@langchain/core@1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3))
       '@langchain/langgraph':
         specifier: ^1.2.9
         version: 1.2.9(@langchain/core@1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3))(zod-to-json-schema@3.25.2(zod@4.4.1))(zod@4.4.1)
@@ -285,10 +279,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@google/generative-ai@0.24.1':
-    resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
-    engines: {node: '>=18.0.0'}
-
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
     engines: {node: '>=6.0.0'}
@@ -302,12 +292,6 @@ packages:
   '@langchain/core@1.1.42':
     resolution: {integrity: sha512-d0tN96BrwPMryYyWR9VfyAntSivn7EQrZCe5Kpxum93tcjTXbKKmKvItFec8AluQt88iTcmAJrahUZUNfzGwTA==}
     engines: {node: '>=20'}
-
-  '@langchain/google-genai@2.1.29':
-    resolution: {integrity: sha512-x+K4GuzXpF9sZFPj+kKJ47WSX4+LOqRo9qwvtmqCBhx9KADcnMrhP2O+Q/58IN0EHv8GoksgiKg2/GmyzkhEfw==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@langchain/core': ^1.1.42
 
   '@langchain/langgraph-checkpoint@1.0.1':
     resolution: {integrity: sha512-HM0cJLRpIsSlWBQ/xuDC67l52SqZ62Bh2Y61DX+Xorqwoh5e1KxYvfCD7GnSTbWWhjBOutvnR0vPhu4orFkZfw==}
@@ -1412,8 +1396,6 @@ snapshots:
   '@esbuild/win32-x64@0.27.7':
     optional: true
 
-  '@google/generative-ai@0.24.1': {}
-
   '@jridgewell/resolve-uri@3.1.2': {}
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
@@ -1441,11 +1423,6 @@ snapshots:
       - '@opentelemetry/sdk-trace-base'
       - openai
       - ws
-
-  '@langchain/google-genai@2.1.29(@langchain/core@1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3))':
-    dependencies:
-      '@google/generative-ai': 0.24.1
-      '@langchain/core': 1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3)
 
   '@langchain/langgraph-checkpoint@1.0.1(patch_hash=e413c9025b98ff2f41ebfc85fe1530cbe245c6fd998468042b80070eb6956440)(@langchain/core@1.1.42(patch_hash=92d216fe9ec3322e1403ffd2448554552b1d5bc9fbddba3e11793bb8b903395c)(openai@6.35.0(ws@8.18.3)(zod@4.4.1))(ws@8.18.3))':
     dependencies:

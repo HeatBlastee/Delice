@@ -33,7 +33,7 @@ function UserDashboard() {
 
   // Calculate filtered and sorted items using useMemo
   const filteredAndSortedItems = useMemo(() => {
-    let items = itemsInMyCity || []
+    let items = Array.isArray(itemsInMyCity) ? itemsInMyCity : []
 
     // Filter by category
     if (selectedCategory !== 'All') {
@@ -106,49 +106,10 @@ function UserDashboard() {
     }
   }, [categories])
 
-  // Calculate stats
-  const totalItems = itemsInMyCity?.length || 0
-  const totalShops = shopInMyCity?.length || 0
-  const vegItems = itemsInMyCity?.filter(item => item.foodType === 'veg').length || 0
-
   return (
     <div className='w-screen min-h-screen flex flex-col gap-5 items-center bg-[#fff9f6] overflow-y-auto'>
       <Nav />
 
-      {/* Stats Cards */}
-      <div className='w-full max-w-6xl grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 mt-4'>
-        <div className='bg-gradient-to-br from-orange-50 to-white p-6 rounded-2xl shadow-md border border-orange-100 hover:shadow-lg transition-shadow'>
-          <div className='flex items-center gap-3'>
-            <FaShoppingBag className='text-[#ff4d2d] text-3xl' />
-            <div>
-              <p className='text-gray-500 text-sm'>Available Items</p>
-              <p className='text-2xl font-bold text-gray-800'>{totalItems}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className='bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl shadow-md border border-green-100 hover:shadow-lg transition-shadow'>
-          <div className='flex items-center gap-3'>
-            <FaStore className='text-green-600 text-3xl' />
-            <div>
-              <p className='text-gray-500 text-sm'>Restaurants in {currentCity}</p>
-              <p className='text-2xl font-bold text-gray-800'>{totalShops}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className='bg-gradient-to-br from-emerald-50 to-white p-6 rounded-2xl shadow-md border border-emerald-100 hover:shadow-lg transition-shadow'>
-          <div className='flex items-center gap-3'>
-            <FaLeaf className='text-emerald-600 text-3xl' />
-            <div>
-              <p className='text-gray-500 text-sm'>Veg Options</p>
-              <p className='text-2xl font-bold text-gray-800'>{vegItems}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Welcome Message */}
       {userData && (
         <div className='w-full max-w-6xl px-4'>
           <h2 className='text-gray-700 text-lg sm:text-xl'>
@@ -163,7 +124,7 @@ function UserDashboard() {
             Search Results
           </h1>
           <div className='w-full h-auto flex flex-wrap gap-6 justify-center'>
-            {searchItems.map((item: Item) => (
+            {Array.isArray(searchItems) && searchItems.map((item: Item) => (
               <FoodCard data={item} key={item._id} />
             ))}
           </div>
@@ -194,7 +155,7 @@ function UserDashboard() {
           </button>}
 
           <div className='w-full flex overflow-x-auto gap-4 pb-2 ' ref={shopScrollRef}>
-            {shopInMyCity?.map((shop: Shop, index: number) => (
+            {Array.isArray(shopInMyCity) && shopInMyCity.map((shop: Shop, index: number) => (
               <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`/shop/${shop._id}`)} />
             ))}
           </div>

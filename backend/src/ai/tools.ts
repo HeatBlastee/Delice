@@ -3,7 +3,6 @@ import { z } from "zod";
 import Order from "../models/order.model";
 import RefundRequest from "../models/refundRequest.model";
 import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage } from "@langchain/core/messages";
 import mongoose from "mongoose";
 
 // Tool 1: Check Order Status
@@ -62,7 +61,7 @@ export const issueRefundTool = tool(
                 return "Order not found. Cannot issue a refund.";
             }
 
-            // If a photoUrl is provided, verify it using Gemini Vision
+            // If a photoUrl is provided, verify it using AI Vision
             let adminNote = "";
             
             if (photoUrl) {

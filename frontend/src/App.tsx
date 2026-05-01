@@ -25,6 +25,7 @@ import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { setSocket } from './redux/userSlice';
 import LandingPage from './pages/LandingPage';
+import SupportChat from './components/SupportChat';
 
 export const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 function App() {
@@ -93,7 +94,7 @@ function App() {
       </Routes>
       <Toaster position="bottom-right"
         reverseOrder={false} />
-
+      <SupportChat />
     </>
   )
 }
