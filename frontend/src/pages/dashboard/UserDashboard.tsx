@@ -4,7 +4,6 @@ import { categories } from '../../utils/categories'
 import CategoryCard from '../../components/CategoryCard'
 import RecommendationSection from '../../components/RecommendationSection'
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
-import { FaLeaf, FaShoppingBag, FaStore } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import FoodCard from '../../components/FoodCart';
 import { useNavigate } from 'react-router-dom';
