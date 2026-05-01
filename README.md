@@ -24,6 +24,13 @@ A comprehensive full-stack food delivery application built with modern web techn
 - **Map State Coordination**: Synchronized map state for tracking features
 - **Real-Time Updates Integration**: Redux slices updated via Socket.io events
 
+### 🤖 Autonomous AI Support Agent (LangGraph)
+- **Intelligent Customer Support**: Autonomous AI agent powered by Google Gemini and LangGraph
+- **Self-Healing State Management**: Persistent conversational state for complex customer queries
+- **Order Tracking Integration**: AI can directly query the database to provide real-time order status
+- **Vision-Powered Refunds**: AI analyzes photo evidence of damaged food using Gemini 1.5 Flash Vision
+- **Human-in-the-Loop**: Automated refund routing for owner approval after AI validation
+
 ## ✨ Features
 
 ### 👤 User Features
@@ -67,6 +74,9 @@ A comprehensive full-stack food delivery application built with modern web techn
 - **File Upload**: Multer + Cloudinary
 - **Email Service**: Nodemailer
 - **Geospatial**: MongoDB 2dsphere indexes
+- **AI Orchestration**: LangGraph for stateful multi-step agent workflows
+- **LLM Provider**: Google Gemini (Flash & Pro models) via LangChain
+- **AI Vision**: Automated image analysis for refund evidence verification
 
 ### Frontend
 - **Framework**: React 19 with TypeScript
@@ -158,6 +168,9 @@ RABBITMQ_URL=amqp://localhost:5672
 
 # CORS Origin
 FRONTEND_URL=http://localhost:5173
+
+# AI Support (Google Gemini)
+GEMINI_API_KEY=your_google_ai_studio_api_key
 ```
 
 ### 3. Frontend Setup
@@ -352,6 +365,11 @@ Delice/
 - `POST /send-delivery-otp` - Send OTP for delivery verification
 - `POST /verify-delivery-otp` - Verify delivery OTP
 - `GET /today-deliveries` - Get today's delivery statistics
+
+### Support Routes (`/api/support`)
+- `POST /chat` - Chat with the AI Support Agent (LangGraph)
+- `GET /refunds` - Get pending refund requests (Owner only)
+- `PUT /refunds/:id` - Approve or reject refund request (Owner only)
 
 ## 🔐 Authentication & Authorization
 
