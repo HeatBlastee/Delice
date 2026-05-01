@@ -14,7 +14,7 @@ import {
     getTodayDeliveries
 } from "../controllers/order.controller";
 
-const orderRouter = Router();
+const orderRouter: import("express").Router = Router();
 
 orderRouter.post('/place-order', isAuth, placeOrder);
 orderRouter.post("/verify-payment", isAuth, verifyPayment);

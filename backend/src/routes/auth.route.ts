@@ -3,7 +3,7 @@ import { googleAuth, resetPassword, sendOtp, signIn, signOut, signUp, verifyOtp 
 
 
 
-const authRouter = Router();
+const authRouter: import("express").Router = Router();
 
 authRouter.post("/signup", signUp)
 authRouter.post("/signin", signIn)

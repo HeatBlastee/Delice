@@ -89,7 +89,7 @@ export const placeOrder = async (req: AuthenticatedRequest, res: Response) => {
 
             const newOrder = await Order.create({
                 user: req.userId,
-                paymentMethod,
+                paymentMethod: paymentMethod as 'cod' | 'online',
                 deliveryAddress,
                 totalAmount,
                 shopOrders,
@@ -105,7 +105,7 @@ export const placeOrder = async (req: AuthenticatedRequest, res: Response) => {
 
         const newOrder = await Order.create({
             user: req.userId,
-            paymentMethod,
+            paymentMethod: paymentMethod as 'cod' | 'online',
             deliveryAddress,
             totalAmount,
             shopOrders,

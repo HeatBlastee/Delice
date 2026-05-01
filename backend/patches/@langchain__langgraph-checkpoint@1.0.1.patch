@@ -1,0 +1,45 @@
+diff --git a/dist/id.cjs b/dist/id.cjs
+index cf820bd003771c2a63e94f13657703f74e410f1f..efc5f5d0de648cc8d7a62fa1f5f55a9ac376c1d7 100644
+--- a/dist/id.cjs
++++ b/dist/id.cjs
+@@ -1,14 +1,34 @@
+-let uuid = require("uuid");
+-//#region src/id.ts
++// Patched: inline uuid v5/v6 to avoid ESM resolution issues with uuid v10
++const crypto = require("crypto");
++
++function bytesToHex(bytes) {
++  return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
++}
++
++// UUID v6 - random-based with version 6 bits set (sufficient for LangGraph checkpoint IDs)
+ function uuid6(clockseq) {
+-	return (0, uuid.v6)({ clockseq });
++  const rnd = crypto.randomBytes(16);
++  rnd[6] = (rnd[6] & 0x0f) | 0x60; // version 6
++  rnd[8] = (rnd[8] & 0x3f) | 0x80; // variant
++  const hex = bytesToHex(rnd);
++  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+ }
++
++// UUID v5 - SHA-1 namespace
+ function uuid5(name, namespace) {
+-	const namespaceBytes = namespace.replace(/-/g, "").match(/.{2}/g).map((byte) => parseInt(byte, 16));
+-	return (0, uuid.v5)(name, new Uint8Array(namespaceBytes));
++  const namespaceBytes = typeof namespace === "string"
++    ? Buffer.from(namespace.replace(/-/g, ""), "hex")
++    : Buffer.from(namespace);
++  const hash = crypto.createHash("sha1").update(Buffer.concat([namespaceBytes, Buffer.from(name)])).digest();
++  hash[6] = (hash[6] & 0x0f) | 0x50; // version 5
++  hash[8] = (hash[8] & 0x3f) | 0x80; // variant
++  const hex = hash.slice(0, 16).toString("hex");
++  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+ }
+-//#endregion
++
++//#region src/id.ts
+ exports.uuid5 = uuid5;
+ exports.uuid6 = uuid6;
++//#endregion
+ 
+ //# sourceMappingURL=id.cjs.map

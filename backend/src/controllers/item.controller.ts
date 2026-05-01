@@ -336,7 +336,7 @@ export const getRecommendations = async (req: AuthenticatedRequest, res: Respons
         const basedOnOrders = topCategories.length > 0
             ? await Item.find({
                 shop: { $in: shopIds },
-                category: { $in: topCategories }
+                category: { $in: topCategories as any[] }
             })
                 .populate("shop", "name image")
                 .limit(10)

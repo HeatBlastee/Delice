@@ -6,7 +6,7 @@ import { cacheMiddleware } from "../middlewares/cache"
 
 
 
-const shopRouter = express.Router()
+const shopRouter: import("express").Router = express.Router()
 
 shopRouter.post("/create-edit", isAuth, upload.single("image"), createEditShop)
 shopRouter.get("/get-my", isAuth, getMyShop)

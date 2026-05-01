@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import dbConnect from './utils/db';
 import authRouter from './routes/auth.route';
 import cookieParser from 'cookie-parser';
@@ -9,12 +9,12 @@ import shopRouter from './routes/shop.route';
 import itemRouter from './routes/item.route';
 import userRouter from './routes/user.route';
 import orderRouter from './routes/order.route';
+import supportRouter from './routes/support.route';
 import { Server } from "socket.io"
 import http from 'http';
 import { socketHandler } from './utils/socket';
 import redisClient from './utils/redis';
 import { rabbitMQ } from './utils/rabbitmq';
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,6 +47,7 @@ app.use('/api/shop', shopRouter);
 app.use('/api/item', itemRouter);
 app.use('/api/user', userRouter);
 app.use('/api/order', orderRouter);
+app.use('/api/support', supportRouter);
 
 
 socketHandler(io)

@@ -3,7 +3,7 @@ import { getCurrentUser, updateUserLocation } from "../controllers/user.controll
 import {isAuth} from "../middlewares/isAuth"
 
 
-const userRouter = express.Router()
+const userRouter: import("express").Router = express.Router()
 
 userRouter.get("/current", isAuth, getCurrentUser)
 userRouter.post('/update-location', isAuth, updateUserLocation)
